@@ -1,0 +1,27 @@
+Package: fossilx
+Type: Package
+Title: Fossil Occurrence Record Extension
+Version: 0.0.1-1
+Authors@R: c(
+	person(given="Adam T.", family="Kocsis", role=c("cre", "aut"),
+		   email="adam.t.kocsis@gmail.com", comment=c(ORCID="0000-0002-9028-665X")),
+	person(given="FAU GeoZentrum Nordbayern", role="fnd"))
+Maintainer: Adam T. Kocsis <adam.t.kocsis@gmail.com>
+Description: A procedural extension of the PBDB - for now. It will be a mergin of the PBDB and the GBDB.
+License: CC BY 4.0
+Date: 2026-06-11
+BugReports: https://github.com/adamkocsis/fossilex/issues
+Encoding: UTF-8
+LazyData: false
+Depends:
+    R (>= 4.0.0),
+Imports:
+	chronosphere,
+	divDyn,
+	rgplates
+NeedsCompilation: no
+RoxygenNote: 7.3.2
+Suggests:
+    tinytest,
+    knitr,
+    rmarkdown
