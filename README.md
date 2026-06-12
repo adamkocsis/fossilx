@@ -16,9 +16,9 @@ library(devtools)
 install_github("adamkocsis/fossilx")
 ```
 
-## Example use - recreate
+## Example use
 
-The following snippet recreates the data procesing steps of the divDyn manual: 
+The following snippet recreates the data procesing steps of the [divDyn SOM](https://github.com/divDyn/ddPhanero/). 
 
 ``` R
 library(fossilx)
@@ -38,6 +38,10 @@ refined <- pbdb_extend(dat,
 )
 ```
 
+Syntax guidelines:
+- Colons define key-value pairs: `lithification1:unlithified`, in this case records where the lithification1 column is unlithified will be omitted.
+- Underscores define versions, in stratigraphic assignments these are version of procedures. In filtering steps these refer to specific items, cf. `data(env.nonmarine_1.0)`.
+
 
 ## To do...
 
@@ -47,8 +51,9 @@ refined <- pbdb_extend(dat,
 - [ ] GPM reconstructions with `rgplates`
 - [ ] Adding body size data from Heim et al. 2015.
 - [ ] Select data with abundance records 
-- [ ] Species-level 
-- [ ] Including Climate proxy data
-- [ ] Categorizing functionalg traits
+- [ ] Species-level taxonomy
+- [ ] Cleaning the data 
+- [ ] Include climate proxy data
+- [ ] Categorizing functional traits
 - [ ] Recent list of genera - Taxon list from the PBDB 
 
