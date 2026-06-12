@@ -1,6 +1,6 @@
 #' fossilx 
 #'
-#' Extended Fossil Occurrence Records
+#' Extension and Post-processing of Fossil Occurrence Records
 #'
 #'
 #' @author Adam T. Kocsis (adam.t.kocsis@gmail.com)

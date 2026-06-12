@@ -6,7 +6,7 @@
 \alias{fossilx}
 \title{fossilx}
 \description{
-Extended Fossil Occurrence Records
+Extension and Post-processing of Fossil Occurrence Records
 }
 \seealso{
 Useful links:

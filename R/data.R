@@ -6,6 +6,10 @@
 #' @usage data(env.marine_1.0)
 "env.marine_1.0"
 
+#' Non-marine environments
+#' @usage data(env.nonmarine_1.0)
+"env.nonmarine_1.0"
+
 #' Cambrian collection assignments 
 #' @usage data(strat.camb_20180831)
 "strat.camb_20180831"

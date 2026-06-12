@@ -28,7 +28,7 @@ column_filter <- function(x, y, include=TRUE){
 # replace entries in a column with a named vector
 replace_entries <- function(x, where="stg", with=strat.camb_20180831,by="collection_no"){
 # the collections entered
-	colls <- as.character(dat[,by])
+	colls <- as.character(x[,by])
 	
 	# which are cambrian?
 	bool <- colls%in%names(with)
@@ -51,3 +51,13 @@ replace_entries <- function(x, where="stg", with=strat.camb_20180831,by="collect
 	return(x)
 }
 
+
+# include should mean unions
+colonfilter_to_dataframe <- function(x){
+	# the key-value pair
+	pair<- unlist(strsplit(x, ":"))
+
+	# return a data.frame
+	df <- data.frame(column=pair[1], entries=pair[2])
+
+}
