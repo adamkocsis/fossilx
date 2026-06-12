@@ -25,38 +25,29 @@ column_filter <- function(x, y, include=TRUE){
 
 }
 
-# General utily function for creating a binning as descrbied in the divDyn SOM (ddPhanero)
-#
-# @param x AN occurrence data frame.
-# @param categs Category list, as the elements of divDyn keys$stgInt 
-# @param out column name of the resulting stratigraphiy assignment
-# @param early_interval column name of the early interval
-# @param late_interval column name of the late interval
-pbdb_assign_bin <- function(x, categs, out, early_interval="early_interval", late_interval="late_interval"){
+# replace entries in a column with a named vector
+replace_entries <- function(x, where="stg", with=strat.camb_20180831,by="collection_no"){
+# the collections entered
+	colls <- as.character(dat[,by])
+	
+	# which are cambrian?
+	bool <- colls%in%names(with)
 
-	# do the categorization
-	binMin <- divDyn::categorize(x[,early_interval], categs)
-	binMax <- divDyn::categorize(x[,late_interval], categs)
-
-	# make them numeric
-	binMin <- as.numeric(binMin)
-	binMax <- as.numeric(binMax)
-
-	# empty container
-	res <- rep(NA, nrow(x))
-
-	# select entries, where
-	binCondition <- c(
-	# the early and late interval fields indicate the same stg
-		which(binMax==binMin),
-	# or the late_intervarl field is empty
-		which(binMax==-1))
-
-	res[binCondition] <- binMin[binCondition]
-
-	# add to the rest and rename
-	x<- cbind(x,res)
-	colnames(x)[ncol(x)] <- out
+	# the cambrian collections - as they are in the occurrence dataset
+	subColls <- colls[bool]
+	
+	# order/assign the stg accordingly
+	subStg <- with[subColls]
+	
+	# copy original
+	newStg <- x[,where] 
+	
+	# replace the missing entries
+	newStg[bool]  <- subStg
+	
+	#
+	x[,where] <- newStg
 
 	return(x)
 }
+

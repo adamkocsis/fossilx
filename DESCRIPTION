@@ -1,7 +1,7 @@
 Package: fossilx
 Type: Package
 Title: Fossil Occurrence Record Extension
-Version: 0.0.1-1
+Version: 0.0.1-2
 Authors@R: c(
 	person(given="Adam T.", family="Kocsis", role=c("cre", "aut"),
 		   email="adam.t.kocsis@gmail.com", comment=c(ORCID="0000-0002-9028-665X")),
@@ -20,8 +20,8 @@ Imports:
 	divDyn,
 	rgplates
 NeedsCompilation: no
-RoxygenNote: 7.3.2
 Suggests:
     tinytest,
     knitr,
     rmarkdown
+Config/roxygen2/version: 8.0.0
