@@ -9,13 +9,14 @@
 #' @param strat Stratigraphic assignment definitions. Available are 'stg', 'ten' and 'stb', colons separate differnet versions.
 #' @param omit What records should be omitted from the set? 
 #' @export
+#' @return A post-processed occurrence data.frame.
 pbdb_extend <- function(dat,
-	include=list("tax.marine_1.0", "env.marine_1.0"),
-	tax.level=c("genus"),
-	tax.combine="clgen",
-	env.categories="divDyn",
-	strat=c("stg:1.0", "ten:1.0", "stb"),
-	omit=list("lithification1:unlithified"), verbose=TRUE){
+	include=NULL,
+	tax.level=NULL,
+	tax.combine=NULL,
+	env.categories=NULL,
+	strat=NULL,
+	omit=NULL, verbose=TRUE){
 
 	# quality filters
 	if(!is.null(tax.level)){
@@ -52,18 +53,31 @@ pbdb_extend <- function(dat,
 
 			# use a pre-defined dataset
 			if(inherits(cur, "character")){
-				# define environment to load these..
-				e <- environment()
+				# colon-syntax
+				if(grepl(":", cur)){
+					# the key-value pair
+					theInclude <-  colonfilter_to_dataframe(cur)
+					# and do the omissions
+					incIndex <- column_filter(dat, theInclude)
 
-				# load data 
-				data(list=cur, package="fossilx", envir=e)
+					# create a union
+					globalInclude <- globalInclude | incIndex
 
-				# execute filter
-				incIndex <- fossilx:::column_filter(dat, e[[cur]])
+				}else{
+					# define environment to load these..
+					e <- environment()
 
-				# create a union
-				globalInclude <- globalInclude | incIndex
+					# load data 
+					data(list=cur, package="fossilx", envir=e)
+
+					# execute filter
+					incIndex <- column_filter(dat, e[[cur]])
+
+					# create a union
+					globalInclude <- globalInclude | incIndex
+				}
 			}
+			if(inherits(cur, "data.frame")) warning("Data.frames are not yet implemented for inclusion.")
 		}
 
 		dat<- dat[globalInclude,]
@@ -100,6 +114,7 @@ pbdb_extend <- function(dat,
 
 				}
 			}
+			if(inherits(cur, "data.frame")) warning("Data.frames are not yet implemented for omission.")
 		}
 		cat("Defining omitted subsets...OK                                           \n")
 		flush.console()

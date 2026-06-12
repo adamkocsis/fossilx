@@ -205,13 +205,11 @@ pbdb_strat_ordovician_stg <- function(dat, format, max.int,zones){
  #   x <- table(new$stg) # control
  #   sum(x)
 
-	
 	# Looping zones
 	for (i in 1:nrow(zones))  {
 		ix <- which(as.character(new$zone) == as.character(zones$zone[i]))
 		new$stg[ix] <- zones$stg[i]
 	}
-
 	
 #	x <- table(new$stg) # control
 #	sum(x)
