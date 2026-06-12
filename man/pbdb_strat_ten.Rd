@@ -12,7 +12,7 @@ pbdb_strat_ten(x, version = "1.0")
 \item{version}{A version number of the binning scheme.}
 }
 \value{
-An occurrence data.frame with the column \code{ten} added to it.
+A vector of bin assignments.
 }
 \description{
 This protocol uses the \code{ten} assignments of \code{divDyn}

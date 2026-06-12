@@ -19,7 +19,7 @@ pbdb_strat_stg <- function(x, version="1.0"){
 		data(keys, package="divDyn", envir=e)
 
 		# execute the main categorization, resolve interval names
-		x <- pbdb_assign_bin_interval(x, categs=e$keys$stgInt, out="stg")
+		x$stg <- pbdb_bin_interval(x, categs=e$keys$stgInt)
 
 		# the Cambrian
 		data(strat.camb_20180831,package="fossilx", envir=e)
@@ -37,7 +37,7 @@ pbdb_strat_stg <- function(x, version="1.0"){
 		stop("No other versions exist yet.")
 	}
 
-	return(x)
+	return(x$stg)
 }
 
 #' Assign ten million year stratgiraphic bin values to PBDB occurrnces \code{stg}
@@ -47,7 +47,7 @@ pbdb_strat_stg <- function(x, version="1.0"){
 #' The framework is described in detail 
 #' @param x A Paleobiology Database occurrence data.frame (full output)
 #' @param version A version number of the binning scheme.
-#' @return An occurrence data.frame with the column \code{ten} added to it. 
+#' @return A vector of bin assignments.
 #' @export
 pbdb_strat_ten <- function(x, version="1.0"){
 
@@ -56,9 +56,9 @@ pbdb_strat_ten <- function(x, version="1.0"){
 	data(keys, package="divDyn", envir=e)
 
 	# execute the main categorization, resolve interval names
-	x <- pbdb_assign_bin_interval(x, categs=e$keys$tenInt, out="ten")
+	bin <- pbdb_bin_interval(x, categs=e$keys$tenInt)
 
-	return(x)
+	return(bin)
 }
 
 
@@ -70,7 +70,7 @@ pbdb_strat_ten <- function(x, version="1.0"){
 # @param out column name of the resulting stratigraphiy assignment
 # @param early_interval column name of the early interval
 # @param late_interval column name of the late interval
-pbdb_assign_bin_interval <- function(x, categs, out, early_interval="early_interval", late_interval="late_interval"){
+pbdb_bin_interval <- function(x, categs, early_interval="early_interval", late_interval="late_interval"){
 
 	# do the categorization
 	binMin <- divDyn::categorize(x[,early_interval], categs)
@@ -92,13 +92,73 @@ pbdb_assign_bin_interval <- function(x, categs, out, early_interval="early_inter
 
 	res[binCondition] <- binMin[binCondition]
 
-	# add to the rest and rename
-	x<- cbind(x,res)
-	colnames(x)[ncol(x)] <- out
-
-	return(x)
+	return(res)
 }
 
+#' Function to generate stage-lookup table from the Paleobiology Database occurrence data.frame
+#'
+#' Processess time-bin data downloaded from the database
+#'
+#' @param pbdb data.frame from database.
+#' @param stagecolumn Charater string, of the time-bin information column
+#' @param min_ma Character string, column name of the minimum ages 
+#' @param max_ma Character string, column name of the maximum ages 
+#' @param bin Character string, this will be the column name of the bin information
+#' @return A data.frame with the stages' name bottom, mid and top age and bin number.
+#' @export
+pbdb_timebins <- function(pbdb, stagecolumn="time_contain", min_ma="min_ma", max_ma="max_ma", bin="stb"){
+	# get the appropriate colulmns out of the PBDB download
+	timeinfo <- unique(pbdb[,c(stagecolumn, max_ma, min_ma)])
+
+	# omit those entires that are not meaningful
+	timeinfo <- timeinfo[timeinfo[,stagecolumn]!="-",]
+	
+	# search for stage minima and maxima
+	ma <- tapply(INDEX=timeinfo[,stagecolumn], X=timeinfo[, max_ma], max)
+	min <- tapply(INDEX=timeinfo[,stagecolumn], X=timeinfo[, min_ma], min)
+
+	# create stages object
+	stagesDF <- data.frame(stage=names(ma), bottom=ma, mid=(ma+min)/2, top=min)
+	stagesDF <-stagesDF[order(stagesDF$bottom, decreasing=TRUE),]
+	rownames(stagesDF) <- NULL
+
+	# check consistency - Cambrian is not consistent
+	# stages$top[1:(nrow(stages)-1)]==stages$bottom[2:nrow(stages)]
+
+
+	# create integer bin numbers
+	stagesDF<- cbind(stagesDF, 1:nrow(stagesDF))
+	colnames(stagesDF)[ncol(stagesDF)] <- bin
+	return(stagesDF)
+}
+
+
+#' Function to bin PBDB data to stb stages 
+#'
+#' @param pbdb data.frame from database.
+#' @param ts data.frame produced by StagesFromPBDB.
+#' @param bin Character string, this will be the column name of the bin information
+#' @param stagecolumn Charater string, of the time-bin information column in the PBDB
+#' @return A vector with integer bin numbers
+#' @examples
+#' pbdb <- chronosphere::fetch("pbdb")
+#' # new stages object
+#' stages <- StagesFromPBDB(pbdb)
+#' # bins from the pbdb output
+#' pbdb$stb <- BinPBDB(pbdb, stages)
+#' @export
+pbdb_strat_stb <- function(pbdb,ts,  bin="stb",stagecolumn="time_contain"){
+	
+	# new vector
+	y <- rep(NA, nrow(pbdb))
+
+	# simple for loop to execute the binning
+	for(i in 1:nrow(ts)){
+		y[which(pbdb[, stagecolumn]==ts$stage[i])] <-ts[i,bin]
+	}
+
+	return(y)
+}
 
 # Script to assign Orodician collections to 'stg' stages based on tables format, max.int, and zones
 # last checked with data of 2018-08-31 - Adam Kocsis
