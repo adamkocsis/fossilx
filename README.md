@@ -42,6 +42,11 @@ Syntax guidelines:
 - Colons define key-value pairs: `lithification1:unlithified`, in this case records where the lithification1 column is unlithified will be omitted.
 - Underscores define versions, in stratigraphic assignments these are version of procedures. In filtering steps these refer to specific items, cf. `data(env.nonmarine_1.0)`.
 
+The framework `stb` represents a solution for the discrete binning based on the `time_contain` output of the pbdb. You can construct a relevant timescale with:
+
+``` R
+timebins <- pbdb_timebins(dat, stagecolumn="time_contain", min_ma="min_ma", max_ma="max_ma", bin="stb")
+```
 
 ## To do...
 
