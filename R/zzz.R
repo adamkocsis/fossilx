@@ -9,4 +9,5 @@
 "_PACKAGE"
 
 #' @importFrom divDyn categorize
+#' @importFrom chronosphere fetch
 NULL
