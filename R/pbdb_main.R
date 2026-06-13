@@ -2,22 +2,36 @@
 #'
 #' Declarative definition of post-processing steps of Paleobiology Database data
 #' 
-#' @param x 
+#' @param x Either a data.frame of occurrence records (e.g. downloaded with PBDB API, or separately), or a character string specifying a
+#' version of the pre-prepared occurrence data frames in the chronosphere. The default \code{"latest"} will download the most recent version.
 #' @param include Multiple element mean successive filtering, i.e. the intersection of sets. Character entries represent pre-defined datasets.
 #' @param tax.level Taxonomic resolution. Currently only the genus level is defined. Arguments passed to pbdb_taxon_quality_filter.
 #' @param tax.combine Combine columsn for homonomy evasion?
 #' @param env.categories Should environment categories be defined?
 #' @param strat Stratigraphic assignment definitions. Available are 'stg', 'ten' and 'stb', colons separate differnet versions.
 #' @param omit What records should be omitted from the set? 
+#' @param datadir The \code{datadir} argument of \code{chronosphere::fetch}.
 #' @export
 #' @return A post-processed occurrence data.frame.
-pbdb_extend <- function(x,
+pbdb_extend <- function(x="latest",
 	include=NULL,
 	tax.level=NULL,
 	tax.combine=NULL,
 	env.categories=NULL,
 	strat=NULL,
-	omit=NULL, verbose=TRUE){
+	omit=NULL, verbose=TRUE, datadir=NULL){
+
+	# if the given value is not a data.frame
+	if(!inherits(x, "data.frame")){
+		if(inherits(x, "character")){
+			cat("Accessing PBDB occurrences via the chronosphere...                                           \n")
+			# access latest, or a specific version
+			if(x=="latest") x <- NULL
+			x <- chronosphere::fetch(src="pbdb", ver=x, datadir=datadir, verbose=verbose)
+			cat("Accessing PBDB occurrences via the chronosphere...OK                                           \n")
+		}
+
+	}
 
 	# quality filters
 	if(!is.null(tax.level)){

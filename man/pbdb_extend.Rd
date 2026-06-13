@@ -5,17 +5,21 @@
 \title{Extend and post-process Paleobiology Database records}
 \usage{
 pbdb_extend(
-  dat,
-  include = list("tax.marine_1.0", "env.marine_1.0"),
-  tax.level = c("genus"),
-  tax.combine = "clgen",
-  env.categories = "divDyn",
-  strat = c("stg:1.0", "ten:1.0", "stb"),
-  omit = list("lithification1:unlithified"),
-  verbose = TRUE
+  x = "latest",
+  include = NULL,
+  tax.level = NULL,
+  tax.combine = NULL,
+  env.categories = NULL,
+  strat = NULL,
+  omit = NULL,
+  verbose = TRUE,
+  datadir = NULL
 )
 }
 \arguments{
+\item{x}{Either a data.frame of occurrence records (e.g. downloaded with PBDB API, or separately), or a character string specifying a
+version of the pre-prepared occurrence data frames in the chronosphere. The default \code{"latest"} will download the most recent version.}
+
 \item{include}{Multiple element mean successive filtering, i.e. the intersection of sets. Character entries represent pre-defined datasets.}
 
 \item{tax.level}{Taxonomic resolution. Currently only the genus level is defined. Arguments passed to pbdb_taxon_quality_filter.}
@@ -27,6 +31,11 @@ pbdb_extend(
 \item{strat}{Stratigraphic assignment definitions. Available are 'stg', 'ten' and 'stb', colons separate differnet versions.}
 
 \item{omit}{What records should be omitted from the set?}
+
+\item{datadir}{The \code{datadir} argument of \code{chronosphere::fetch}.}
+}
+\value{
+A post-processed occurrence data.frame.
 }
 \description{
 Declarative definition of post-processing steps of Paleobiology Database data
