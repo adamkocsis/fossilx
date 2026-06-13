@@ -2,6 +2,7 @@
 #'
 #' Declarative definition of post-processing steps of Paleobiology Database data
 #' 
+#' @param x 
 #' @param include Multiple element mean successive filtering, i.e. the intersection of sets. Character entries represent pre-defined datasets.
 #' @param tax.level Taxonomic resolution. Currently only the genus level is defined. Arguments passed to pbdb_taxon_quality_filter.
 #' @param tax.combine Combine columsn for homonomy evasion?
@@ -10,7 +11,7 @@
 #' @param omit What records should be omitted from the set? 
 #' @export
 #' @return A post-processed occurrence data.frame.
-pbdb_extend <- function(dat,
+pbdb_extend <- function(x,
 	include=NULL,
 	tax.level=NULL,
 	tax.combine=NULL,
@@ -23,7 +24,7 @@ pbdb_extend <- function(dat,
 		cat("Taxon quality filtering...                                           \r")
 		flush.console()
 		# omit pooor quality occs
-		dat <- pbdb_taxon_quality_filter(dat, level=tax.level)
+		x <- pbdb_taxon_quality_filter(x, level=tax.level)
 		cat("Taxon quality filtering...OK                                           \n")
 		flush.console()
 	}
@@ -32,7 +33,7 @@ pbdb_extend <- function(dat,
 	if(is.null(tax.combine)){
 		cat("Combining taxon columns...                                           \r")
 		flush.console()
-		if("clgen"%in% tax.combine) dat$clgen <- paste0(dat$class, dat$genus, sep="_")
+		if("clgen"%in% tax.combine) x$clgen <- paste0(x$class, x$genus, sep="_")
 		cat("Combining taxon columns...OK                                           \n")
 		flush.console()
 	}
@@ -44,7 +45,7 @@ pbdb_extend <- function(dat,
 		flush.console()
 
 		# what to include
-		globalInclude <-rep(FALSE, nrow(dat))
+		globalInclude <-rep(FALSE, nrow(x))
 		
 		for(i in 1:length(include)){ 
 
@@ -58,7 +59,7 @@ pbdb_extend <- function(dat,
 					# the key-value pair
 					theInclude <-  colonfilter_to_dataframe(cur)
 					# and do the omissions
-					incIndex <- column_filter(dat, theInclude)
+					incIndex <- column_filter(x, theInclude)
 
 					# create a union
 					globalInclude <- globalInclude | incIndex
@@ -71,7 +72,7 @@ pbdb_extend <- function(dat,
 					data(list=cur, package="fossilx", envir=e)
 
 					# execute filter
-					incIndex <- column_filter(dat, e[[cur]])
+					incIndex <- column_filter(x, e[[cur]])
 
 					# create a union
 					globalInclude <- globalInclude | incIndex
@@ -80,7 +81,7 @@ pbdb_extend <- function(dat,
 			if(inherits(cur, "data.frame")) warning("Data.frames are not yet implemented for inclusion.")
 		}
 
-		dat<- dat[globalInclude,]
+		x<- x[globalInclude,]
 		cat("Defining included subsets...OK                                           \n")
 		flush.console()
 	 }
@@ -99,8 +100,8 @@ pbdb_extend <- function(dat,
 					# the key-value pair
 					omission <-  colonfilter_to_dataframe(cur)
 					# and do the omissions
-					incInd <- fossilx:::column_filter(dat, omission, include=FALSE)
-					dat<- dat[incInd,]
+					incInd <- fossilx:::column_filter(x, omission, include=FALSE)
+					x<- x[incInd,]
 				}else{# built in dataset
 					# define environment to load these..
 					e <- environment()
@@ -109,8 +110,8 @@ pbdb_extend <- function(dat,
 					data(list=cur, package="fossilx", envir=e)
 
 					# execute filter
-					incIndex <- fossilx:::column_filter(dat, e[[cur]], include=FALSE)
-					dat<- dat[incIndex,]
+					incIndex <- fossilx:::column_filter(x, e[[cur]], include=FALSE)
+					x<- x[incIndex,]
 
 				}
 			}
@@ -131,20 +132,20 @@ pbdb_extend <- function(dat,
 			e <- environment()
 			data(keys, package="divDyn", envir=e)
 
-			dat$lith<-divDyn::categorize(dat$lithology1,e$keys$lith)
+			x$lith<-divDyn::categorize(x$lithology1,e$keys$lith)
 
 			# batyhmetry
-			dat$bath <- divDyn::categorize(dat$environment,e$keys$bath) 
+			x$bath <- divDyn::categorize(x$environment,e$keys$bath) 
 
 			# grain size
-			dat$grain <- divDyn::categorize(dat$lithology1,e$keys$grain) 
+			x$grain <- divDyn::categorize(x$lithology1,e$keys$grain) 
 
 			# reef or not?
-			dat$reef <- divDyn::categorize(dat$environment, e$keys$reef) 
-			dat$reef[dat$lith=="clastic" & dat$environment=="marine indet."] <- "non-reef" # reef or not?/2
+			x$reef <- divDyn::categorize(x$environment, e$keys$reef) 
+			x$reef[x$lith=="clastic" & x$environment=="marine indet."] <- "non-reef" # reef or not?/2
 
 			# onshore - offshore
-			dat$depenv <- divDyn::categorize(dat$environment,e$keys$depenv) 
+			x$depenv <- divDyn::categorize(x$environment,e$keys$depenv) 
 		}
 		cat("Categorizing environmental data...OK                                           \n")
 		flush.console()
@@ -161,10 +162,10 @@ pbdb_extend <- function(dat,
 			ver <- unlist(lapply(strsplit(strat[stg],"_"), function(x) x[2]))
 
 			# do the assignments
-			stgBin <- pbdb_strat_stg(dat, version=ver)
+			stgBin <- pbdb_strat_stg(x, version=ver)
 
 			# add to the data.frame 
-			dat <- cbind(dat, stg=stgBin)
+			x <- cbind(x, stg=stgBin)
 
 		}
 		# ten - binnning
@@ -176,10 +177,10 @@ pbdb_extend <- function(dat,
 			ver <- unlist(lapply(strsplit(strat[ten],"_"), function(x) x[2]))
 
 			# do the assignments
-			tenBin <- pbdb_strat_ten(dat, version=ver)
+			tenBin <- pbdb_strat_ten(x, version=ver)
 
 			# add to the data.frame 
-			dat <- cbind(dat, ten=tenBin)
+			x <- cbind(x, ten=tenBin)
 			
 		}
 
@@ -189,17 +190,17 @@ pbdb_extend <- function(dat,
 			cat("Assigning stratigraphic bins - 'stb'...                                           \r")
 			flush.console()
 			# generate a timescale object
-			stb_stages <- pbdb_timebins(dat, stagecolumn="time_contain", min_ma="min_ma", max_ma="max_ma", bin="stb")
+			stb_stages <- pbdb_timebins(x, stagecolumn="time_contain", min_ma="min_ma", max_ma="max_ma", bin="stb")
 			# resolve based on timescale
-			stbVec <- pbdb_strat_stb(dat, ts=stb_stages, bin="stb", stagecolumn="time_contain")
+			stbVec <- pbdb_strat_stb(x, ts=stb_stages, bin="stb", stagecolumn="time_contain")
 			# add to the data.frame 
-			dat <- cbind(dat, stb=stbVec)
+			x <- cbind(x, stb=stbVec)
 		}
 		cat("Assigning stratigraphic bins...OK                                           \n")
 		flush.console()
 		
 	}
 
-	return(dat)
+	return(x)
 
 }
